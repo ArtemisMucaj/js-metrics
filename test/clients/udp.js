@@ -9,7 +9,6 @@ class UdpTest extends Udp {
     stop() {}
 
     send(message) {
-        console.log('MESSAGE', message)
         MSGS.push(message)
         return
     }
