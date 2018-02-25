@@ -5,7 +5,7 @@ const DEFAULT_PERCENTILES = [0.5, 0.75, 0.9, 0.95, 0.98, 0.99]
 
 class Histogram {
     constructor(maxSamples = 128) {
-        // A part of the signal can be lost
+        // Part of the signal can be lost
         // when using a constant maxSamples
         this.maxSamples = maxSamples
         this.type = 'histogram'
