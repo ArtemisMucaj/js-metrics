@@ -4,23 +4,10 @@ const r = require('ramda')
 const Counter = require('../types/counter')
 const Histogram = require('../types/histogram')
 
-function operation(type, name, f1, value, f2) {
-    if (r.isNil(type) || r.isNil(name) || r.isNil(f1) || r.isNil(f2)) {
-        return
-    }
-    if (!r.isNil(r.path([type, name], this.trackedMetrics))) {
-        return this.trackedMetrics[type][name][f1](value)
-    }
-    let res = this[f2](name)
-    return operation.call(this, type, name, f1, value, f2)
-}
-
 class Interval {
     constructor() {
         this.__interval = null
-        // Store metrics here
-        this.trackedMetrics = {}
-        // Stats
+        this.trackedMetrics = new Map()
         this.uptime = 0
         this.latency = 0
         this.memoryUsage = 0
@@ -28,11 +15,8 @@ class Interval {
     }
 
     addMetric(name, metric) {
-        if (r.isNil(this.trackedMetrics[metric.type])) {
-            this.trackedMetrics[metric.type] = {}
-        }
-        if (r.isNil(this.trackedMetrics[metric.type][name])) {
-            this.trackedMetrics[metric.type][name] = metric
+        if (!this.trackedMetrics.has(name) && !r.isNil(metric)) {
+            this.trackedMetrics.set(name, metric)
         }
     }
 
@@ -69,36 +53,27 @@ class Interval {
     }
 
     inc(name, value = 1) {
-        return operation.call(
-            this,
-            'count',
-            name,
-            'inc',
-            value,
-            'createCounter'
-        )
+        if (this.trackedMetrics.has(name)) {
+            return this.trackedMetrics.get(name).inc(value)
+        }
+        this.createCounter(name)
+        return this.inc(name, value)
     }
 
     dec(name, value = 1) {
-        return operation.call(
-            this,
-            'count',
-            name,
-            'dec',
-            value,
-            'createCounter'
-        )
+        if (this.trackedMetrics.has(name)) {
+            return this.trackedMetrics.get(name).dec(value)
+        }
+        this.createCounter(name)
+        return this.dec(name, value)
     }
 
     timing(name, value) {
-        return operation.call(
-            this,
-            'histogram',
-            name,
-            'update',
-            value,
-            'createHistogram'
-        )
+        if (this.trackedMetrics.has(name)) {
+            return this.trackedMetrics.get(name).update(value)
+        }
+        this.createHistogram(name)
+        return this.timing(name, value)
     }
 
     report() {
@@ -116,22 +91,24 @@ class Interval {
     }
 
     getMetrics() {
-        let counters = []
-        let histograms = []
-        let trackedMetrics = this.trackedMetrics
-        for (let namespace in trackedMetrics) {
-            for (let name in trackedMetrics[namespace]) {
-                let metric = trackedMetrics[namespace][name]
+        return r.reduce(
+            (ans, list) => {
+                const [name, metric] = list
                 metric.name = name
-                let metricType = Object.getPrototypeOf(metric)
-                if (metricType === Counter.prototype) {
-                    counters.push(metric)
-                } else if (metricType == Histogram.prototype) {
-                    histograms.push(metric)
+                if (r.is(Histogram, metric)) {
+                    ans.histograms.push(metric)
                 }
-            }
-        }
-        return { counters: counters, histograms: histograms }
+                if (r.is(Counter, metric)) {
+                    ans.counters.push(metric)
+                }
+                return ans
+            },
+            {
+                counters: [],
+                histograms: []
+            },
+            this.trackedMetrics
+        )
     }
 }
 
