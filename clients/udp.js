@@ -103,7 +103,7 @@ class Udp extends Interval {
         return r.reduce(
             (ans, list) => {
                 const [key, value] = list
-                return (ans += this.format(key, value, timestamp))
+                return ans + this.format(key, value, timestamp)
             },
             '',
             input
