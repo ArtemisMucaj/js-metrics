@@ -5,6 +5,8 @@ const DEFAULT_PERCENTILES = [0.5, 0.75, 0.9, 0.95, 0.98, 0.99]
 
 class Histogram {
     constructor(maxSamples = 128) {
+        // A part of the signal can be lost
+        // when using a constant maxSamples
         this.maxSamples = maxSamples
         this.type = 'histogram'
         this.samples = []
@@ -34,36 +36,28 @@ class Histogram {
         this.sum += val
     }
 
-    percentiles(percentiles) {
-        if (r.isNil(percentiles)) percentiles = DEFAULT_PERCENTILES
-        let values = this.samples
-                .map(v => {
-                    return parseFloat(v)
-                })
-                .sort((a, b) => {
-                    return a - b
-                }),
-            scores = {},
-            percentile,
-            pos,
-            lower,
-            upper
-        for (let i = 0; i < percentiles.length; i++) {
-            pos = percentiles[i] * (values.length + 1)
-            percentile = percentiles[i]
-            if (pos < 1) {
-                scores[percentile] = values[0]
-            } else if (pos >= values.length) {
-                scores[percentile] = values[values.length - 1]
-            } else {
-                lower = values[Math.floor(pos) - 1]
-                upper = values[Math.ceil(pos) - 1]
-                scores[percentile] =
-                    lower + (pos - Math.floor(pos)) * (upper - lower)
-            }
-        }
-
-        return scores
+    percentiles(percentiles = DEFAULT_PERCENTILES) {
+        const samples = r.pipe(r.map(parseFloat), r.sort((a, b) => a - b))(
+            this.samples
+        )
+        return r.zipObj(
+            percentiles,
+            r.map(x => {
+                const position = x * (samples.length + 1)
+                if (position < 1) {
+                    return r.head(samples)
+                } else if (position >= samples.length) {
+                    return r.last(samples)
+                } else {
+                    const lower = samples[Math.floor(position) - 1]
+                    const upper = samples[Math.ceil(position) - 1]
+                    return (
+                        lower +
+                        (position - Math.floor(position)) * (upper - lower)
+                    )
+                }
+            }, percentiles)
+        )
     }
 
     mean() {

@@ -30,17 +30,17 @@ class Udp extends Interval {
         const metrics = this.getMetrics()
         const timestamp = new Date().getTime() / 1000
         this.send(
-            r.reduce((ans, x) => (ans += x), '', [
+            r.reduce((ans, x) => ans + x, '', [
                 this.reportUptime(this.uptime, timestamp),
                 this.reportLatency(this.latency, timestamp),
                 this.reportMemoryUsage(this.memoryUsage, timestamp),
                 r.reduce(
-                    (ans, x) => (ans += this.reportHistogram(x, timestamp)),
+                    (ans, x) => ans + this.reportHistogram(x, timestamp),
                     '',
                     metrics.histograms
                 ),
                 r.reduce(
-                    (ans, x) => (ans += this.reportCounter(x, timestamp)),
+                    (ans, x) => ans + this.reportCounter(x, timestamp),
                     '',
                     metrics.counters
                 )
