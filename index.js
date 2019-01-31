@@ -1,5 +1,8 @@
 'use strict'
 
 module.exports = {
-    Udp: require('./clients/udp')
+    Udp: require('./transports/udp')
+    Formatters: {
+        Influx: require('./formatters/influx')
+    }
 }

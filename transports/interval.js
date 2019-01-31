@@ -76,7 +76,16 @@ class Interval {
         return this.timing(name, value)
     }
 
+    /**
+     * This method should call compute when overriden
+     *
+     * @return
+     */
     report() {
+        throw new Error('Should implement report method')
+    }
+
+    compute() {
         const now = Date.now()
         this.latency = now - this.timestamp
         if (!r.isNil(r.prop('_idleTimeout', this.__interval))) {
