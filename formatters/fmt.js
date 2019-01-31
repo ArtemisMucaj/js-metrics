@@ -2,7 +2,7 @@
 
 const r = require('ramda')
 
-class Base {
+class Fmt {
     constructor(prefix) {
         this.prefix = prefix
     }
@@ -52,4 +52,4 @@ class Base {
     }
 }
 
-module.exports = Base
+module.exports = Fmt

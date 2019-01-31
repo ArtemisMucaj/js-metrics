@@ -2,10 +2,10 @@
 
 const r = require('ramda')
 const util = require('util')
-const Base = require('./base')
+const Fmt = require('./fmt')
 const PERCENTILES = [0.25, 0.5, 0.75, 0.95, 0.98, 0.99]
 
-class Influx extends Base {
+class Influx extends Fmt {
     format(name, value, timestamp) {
         if (r.isNil(value)) {
             return null

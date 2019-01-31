@@ -1,10 +1,10 @@
 'use strict'
 
 const r = require('ramda')
-const Base = require('./base')
+const Fmt = require('./fmt')
 const PERCENTILES = [0.25, 0.5, 0.75, 0.95, 0.98, 0.99]
 
-class Json extends Base {
+class Json extends Fmt {
     format(name, value, timestamp) {
         if (r.isNil(value)) {
             return null
