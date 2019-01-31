@@ -2,14 +2,10 @@
 
 const r = require('ramda')
 const util = require('util')
-
+const Base = require('./base')
 const PERCENTILES = [0.25, 0.5, 0.75, 0.95, 0.98, 0.99]
 
-class Influx {
-    constructor(prefix) {
-        this.prefix = prefix
-    }
-
+class Influx extends Base {
     format(name, value, timestamp) {
         if (r.isNil(value)) {
             return null
@@ -21,14 +17,6 @@ class Influx {
             value,
             parseInt(timestamp)
         )
-    }
-
-    formatGauge(name, value, timestamp) {
-        return this.format(name, value, timestamp)
-    }
-
-    formatCounter(counter, timestamp) {
-        return this.format(counter.name, counter.count, timestamp)
     }
 
     formatHistogram(histogram, timestamp) {
@@ -49,7 +37,7 @@ class Influx {
         return r.reduce(
             (ans, list) => {
                 const [key, value] = list
-                return ans + this.format(key, value, timestamp)
+                return ans.concat(this.format(key, value, timestamp))
             },
             '',
             input
