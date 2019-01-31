@@ -9,11 +9,17 @@ class Counter {
     }
 
     inc(value = 0) {
+        if (!r.is(Number, value)) {
+            throw new Error('Counter value should be a number')
+        }
         if (r.isNil(value)) value = 0
         this.count += parseInt(value)
     }
 
     dec(value = 0) {
+        if (!r.is(Number, value)) {
+            throw new Error('Counter value should be a number')
+        }
         if (r.isNil(value)) value = 0
         this.count -= parseInt(value)
     }

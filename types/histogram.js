@@ -16,7 +16,10 @@ class Histogram {
         this.count = 0
     }
 
-    update(val) {
+    update(val = 0) {
+        if (!r.is(Number, val)) {
+            throw new Error('Histogram value should be a number')
+        }
         this.count++
         if (r.isNil(this.max)) {
             this.max = val
