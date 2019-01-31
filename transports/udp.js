@@ -29,29 +29,13 @@ class Udp extends Interval {
         const metrics = this.getMetrics()
         const timestamp = new Date().getTime() / 1000
         this.send(
-            r.reduce((ans, x) => ans + x, '', [
-                this.fmt.formatGauge('process.uptime', this.uptime, timestamp),
-                this.fmt.formatGauge(
-                    'process.latency',
-                    this.latency,
-                    timestamp
-                ),
-                this.fmt.formatGauge(
-                    'process.memoryusage',
-                    this.memoryUsage,
-                    timestamp
-                ),
-                r.reduce(
-                    (ans, x) => ans + this.fmt.formatHistogram(x, timestamp),
-                    '',
-                    metrics.histograms
-                ),
-                r.reduce(
-                    (ans, x) => ans + this.fmt.formatCounter(x, timestamp),
-                    '',
-                    metrics.counters
-                )
-            ])
+            this.fmt.export(
+                metrics,
+                this.memoryUsage,
+                this.uptime,
+                this.latency,
+                timestamp
+            )
         )
     }
 
