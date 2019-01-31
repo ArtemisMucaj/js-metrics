@@ -1,7 +1,8 @@
 'use strict'
 
 import test from 'ava'
-const Interval = require('../../clients/interval')
+
+const Interval = require('../../transports/interval')
 
 test('test Interval class', t => {
     const ans = new Interval()
@@ -55,15 +56,16 @@ test('test Interval.timing function', t => {
         t.is(1, res.histograms[0].count)
 })
 
-test.cb('test Interval.report function', t => {
+test('test Interval.report function', t => {
     const ans = new Interval()
-    ans.start(100)
+    t.throws(() => ans.report())
+})
+
+test.cb('test Interval.compute function', t => {
+    const ans = new Interval()
     setTimeout(() => {
-        ans.report()
-        ans.stop()
-        t.not(null, ans.__interval) &&
-            t.not(0, ans.memoryUsage) &&
-            t.no(0, ans.latency)
+        ans.compute()
+        t.not(0, ans.memoryUsage) && t.no(0, ans.latency)
         t.end()
     }, 250)
 })

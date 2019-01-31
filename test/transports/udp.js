@@ -1,7 +1,9 @@
 'use strict'
 
 import test from 'ava'
-const Udp = require('../../clients/udp')
+
+const Udp = require('../../transports/udp')
+const Influx = require('../../formatters/influx')
 
 const MSGS = []
 class UdpTest extends Udp {
@@ -15,8 +17,9 @@ class UdpTest extends Udp {
 }
 
 test('test Udp class', t => {
-    const ans = new UdpTest('stats.tests', 'localhost')
-    t.is('stats.tests', ans.prefix) &&
+    const fmt = new Influx('stats.tests')
+    const ans = new UdpTest(fmt, 'localhost')
+    t.is('stats.tests', fmt.prefix) &&
         t.is('localhost', ans.host) &&
         t.is(9003, ans.port) &&
         t.deepEqual({}, this.trackedMetrics)
