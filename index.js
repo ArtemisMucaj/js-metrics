@@ -3,7 +3,7 @@
 module.exports = {
     Udp: require('./transports/udp')
     Formatters: {
+        Fmt: require('./formatters/fmt'),
         Json: require('./formatters/json'),
-        Influx: require('./formatters/influx')
     }
 }

@@ -3,7 +3,7 @@
 import test from 'ava'
 
 const Udp = require('../../transports/udp')
-const Influx = require('../../formatters/influx')
+const Fmt = require('../../formatters/fmt')
 const Json = require('../../formatters/json')
 
 const MSGS = []
@@ -18,7 +18,7 @@ class UdpTest extends Udp {
 }
 
 test('test Udp class with Influx formatter', t => {
-    const fmt = new Influx('stats.tests')
+    const fmt = new Fmt('stats.tests')
     const ans = new UdpTest(fmt, 'localhost')
     t.is('stats.tests', fmt.prefix) &&
         t.is('localhost', ans.host) &&

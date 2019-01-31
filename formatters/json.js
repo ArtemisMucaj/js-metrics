@@ -2,8 +2,10 @@
 
 const r = require('ramda')
 const Fmt = require('./fmt')
-const PERCENTILES = [0.25, 0.5, 0.75, 0.95, 0.98, 0.99]
 
+/**
+ * Json formatter
+ */
 class Json extends Fmt {
     format(name, value, timestamp) {
         if (r.isNil(value)) {
@@ -18,33 +20,21 @@ class Json extends Fmt {
         return res
     }
 
-    formatHistogram(histogram, timestamp) {
-        const name = histogram.name
-        const percentiles = histogram.percentiles(PERCENTILES)
-        const input = r.concat(
-            r.zip(
-                ['count', 'mean', 'min', 'max'],
-                [
-                    histogram.count,
-                    histogram.mean(),
-                    histogram.min,
-                    histogram.max
-                ]
-            ),
-            r.zip(
-                r.map(x => `p${x * 100}`, PERCENTILES),
-                r.map(x => percentiles[x], PERCENTILES)
-            )
-        )
+    formatHistogram(
+        histogram,
+        timestamp,
+        prependName = false,
+        accFunc = r.merge,
+        separator = {}
+    ) {
         return this.format(
-            name,
-            r.reduce(
-                (ans, list) => {
-                    const [key, value] = list
-                    return r.merge(ans, this.format(key, value))
-                },
-                {},
-                input
+            histogram.name,
+            super.formatHistogram(
+                histogram,
+                timestamp,
+                prependName,
+                accFunc,
+                separator
             )
         )
     }
@@ -55,9 +45,11 @@ class Json extends Fmt {
         uptime,
         latency,
         timestamp,
-        accumulateFn = r.merge,
+        accFunc = r.merge,
         separator = {}
     ) {
+        // Timestamp is only used at the
+        // root of the json
         return JSON.stringify(
             this.format(
                 this.prefix,
@@ -67,10 +59,9 @@ class Json extends Fmt {
                     uptime,
                     latency,
                     null,
-                    accumulateFn,
+                    accFunc,
                     separator
                 ),
-                // Only use timestamp here
                 timestamp
             )
         )
