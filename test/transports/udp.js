@@ -61,8 +61,7 @@ test('test Udp class with Json formatter', t => {
     ans.timing('requests-1', 1000)
     const now = parseInt(Date.now() / 1000)
     ans.report()
-
     const m = MSGS.shift()
-    const expected = `{"name":"stats.tests","value":[{"name":"process.uptime","value":0},{"name":"process.latency","value":1},{"name":"process.memoryusage","value":60},{"name":"requests-1","value":[{"name":"count","value":1},{"name":"mean","value":1000},{"name":"min","value":1000},{"name":"max","value":1000},{"name":"p25","value":1000},{"name":"p50","value":1000},{"name":"p75","value":1000},{"name":"p95","value":1000},{"name":"p98","value":1000},{"name":"p99","value":1000}]},{"name":"error","value":1},{"name":"requests-0","value":1}],"timestamp":${now}}`
+    const expected = `{"stats.tests":{"process.uptime":1,"process.latency":0,"process.memoryusage":71,"requests-1":{"count":1,"mean":1000,"min":1000,"max":1000,"p25":1000,"p50":1000,"p75":1000,"p95":1000,"p98":1000,"p99":1000},"error":1,"requests-0":1},"timestamp":${now}}`
     t.is(expected.length, m.length) && t.is(expected, m)
 })

@@ -37,7 +37,7 @@ class Influx extends Fmt {
         return r.reduce(
             (ans, list) => {
                 const [key, value] = list
-                return ans.concat(this.format(key, value, timestamp))
+                return r.concat(ans, this.format(key, value, timestamp))
             },
             '',
             input

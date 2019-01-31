@@ -10,8 +10,7 @@ class Json extends Fmt {
             return null
         }
         const res = {
-            name,
-            value
+            [name]: value
         }
         if (!r.isNil(timestamp)) {
             res.timestamp = parseInt(timestamp)
@@ -42,15 +41,23 @@ class Json extends Fmt {
             r.reduce(
                 (ans, list) => {
                     const [key, value] = list
-                    return ans.concat(this.format(key, value))
+                    return r.merge(ans, this.format(key, value))
                 },
-                [],
+                {},
                 input
             )
         )
     }
 
-    export(metrics, memoryUsage, uptime, latency, timestamp, separator = []) {
+    export(
+        metrics,
+        memoryUsage,
+        uptime,
+        latency,
+        timestamp,
+        accumulateFn = r.merge,
+        separator = {}
+    ) {
         return JSON.stringify(
             this.format(
                 this.prefix,
@@ -60,6 +67,7 @@ class Json extends Fmt {
                     uptime,
                     latency,
                     null,
+                    accumulateFn,
                     separator
                 ),
                 // Only use timestamp here

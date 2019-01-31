@@ -33,18 +33,27 @@ class Fmt {
      *
      * @return string
      */
-    export(metrics, memoryUsage, uptime, latency, timestamp, separator = '') {
-        return r.reduce((ans, x) => ans.concat(x), separator, [
+    export(
+        metrics,
+        memoryUsage,
+        uptime,
+        latency,
+        timestamp,
+        accumulateFn = r.concat,
+        separator = ''
+    ) {
+        return r.reduce((ans, x) => accumulateFn(ans, x), separator, [
             this.formatGauge('process.uptime', uptime, timestamp),
             this.formatGauge('process.latency', latency, timestamp),
             this.formatGauge('process.memoryusage', memoryUsage, timestamp),
             r.reduce(
-                (ans, x) => ans.concat(this.formatHistogram(x, timestamp)),
+                (ans, x) =>
+                    accumulateFn(ans, this.formatHistogram(x, timestamp)),
                 separator,
                 metrics.histograms
             ),
             r.reduce(
-                (ans, x) => ans.concat(this.formatCounter(x, timestamp)),
+                (ans, x) => accumulateFn(ans, this.formatCounter(x, timestamp)),
                 separator,
                 metrics.counters
             )
