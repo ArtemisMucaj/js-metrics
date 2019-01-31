@@ -3,6 +3,7 @@
 import test from 'ava'
 
 const Interval = require('../../transports/interval')
+const Fmt = require('../../formatters/fmt')
 
 test('test Interval class', t => {
     const ans = new Interval()
@@ -61,10 +62,11 @@ test('test Interval.report function', t => {
     t.throws(() => ans.report())
 })
 
-test.cb('test Interval.compute function', t => {
-    const ans = new Interval()
+test.cb('test Interval.export function', t => {
+    const fmt = new Fmt('stats')
+    const ans = new Interval(fmt)
     setTimeout(() => {
-        ans.compute()
+        ans.export()
         t.not(0, ans.memoryUsage) && t.no(0, ans.latency)
         t.end()
     }, 250)

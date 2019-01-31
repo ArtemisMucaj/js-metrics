@@ -6,8 +6,7 @@ const Interval = require('./interval')
 
 class Udp extends Interval {
     constructor(fmt, host, port = 9003) {
-        super()
-        this.fmt = fmt
+        super(fmt)
         this.host = host
         this.port = port
     }
@@ -20,23 +19,6 @@ class Udp extends Interval {
     stop() {
         super.stop()
         this.__socket.close()
-    }
-
-    report() {
-        // Compute memory usage, uptime ...
-        this.compute()
-        // Report metrics
-        const metrics = this.getMetrics()
-        const timestamp = new Date().getTime() / 1000
-        this.send(
-            this.fmt.export(
-                metrics,
-                this.memoryUsage,
-                this.uptime,
-                this.latency,
-                timestamp
-            )
-        )
     }
 
     send(message) {

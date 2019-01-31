@@ -5,7 +5,8 @@ const Counter = require('../types/counter')
 const Histogram = require('../types/histogram')
 
 class Interval {
-    constructor() {
+    constructor(fmt) {
+        this.fmt = fmt
         this.__interval = null
         this.trackedMetrics = new Map()
         this.uptime = 0
@@ -76,29 +77,6 @@ class Interval {
         return this.timing(name, value)
     }
 
-    /**
-     * This method should call compute when overriden
-     *
-     * @return
-     */
-    report() {
-        throw new Error('Should implement report method')
-    }
-
-    compute() {
-        const now = Date.now()
-        this.latency = now - this.timestamp
-        if (!r.isNil(r.prop('_idleTimeout', this.__interval))) {
-            this.latency -= this.__interval._idleTimeout
-        }
-        if (this.latency < 0) this.latency = 0
-        this.timestamp = now
-        // Note: process.memoryUsage().rss is given in bytes;
-        // we divide it by 2^20 to get MB
-        this.memoryUsage = parseInt(process.memoryUsage().rss / 1048576)
-        this.uptime = parseInt(process.uptime())
-    }
-
     getMetrics() {
         return r.reduce(
             (ans, list) => {
@@ -118,6 +96,43 @@ class Interval {
             },
             this.trackedMetrics
         )
+    }
+
+    export() {
+        const now = Date.now()
+        this.latency = now - this.timestamp
+        if (!r.isNil(r.prop('_idleTimeout', this.__interval))) {
+            this.latency -= this.__interval._idleTimeout
+        }
+        if (this.latency < 0) this.latency = 0
+        this.timestamp = now
+        // Note: process.memoryUsage().rss is given in bytes;
+        // we divide it by 2^20 to get MB
+        this.memoryUsage = parseInt(process.memoryUsage().rss / 1048576)
+        this.uptime = parseInt(process.uptime())
+
+        // Return formatted metrics
+        return this.fmt.export(
+            this.getMetrics(),
+            this.memoryUsage,
+            this.uptime,
+            this.latency,
+            parseInt(this.timestamp / 1000)
+        )
+    }
+
+    report() {
+        const payload = this.export()
+        return this.send(payload)
+    }
+
+    /**
+     * Method used to send message to transport
+     *
+     * @return
+     */
+    send(message) {
+        throw new Error('Should implement method send')
     }
 }
 
